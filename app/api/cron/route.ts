@@ -10,6 +10,10 @@ import {
 } from "@/lib/utils";
 import { NextResponse } from "next/server";
 
+export const maxDuration = 300;
+export const dynamic = "force-dynamic";
+export const revalidate = 0;
+
 export async function GET() {
   try {
     connectToDB();
@@ -18,7 +22,7 @@ export async function GET() {
 
     if (!products) throw new Error("No products found");
 
-    const updatedProducts = await Promise.all(
+    const updatedProduct = await Promise.all(
       products.map(async (currentProduct) => {
         const scrapedProduct = await scrapeAmazonProduct(currentProduct.url);
 
@@ -50,7 +54,7 @@ export async function GET() {
         if (emailNotifType && updatedProduct.users.length > 0) {
           const productInfo = {
             title: updatedProduct.title,
-            url: updatedProduct.url,
+            url: product.url,
           };
 
           const emailContent = await generateEmailBody(
@@ -71,7 +75,7 @@ export async function GET() {
 
     return NextResponse.json({
       message: "Ok",
-      data: updatedProducts,
+      data: updatedProduct,
     });
   } catch (error) {
     throw new Error(`Error in GET: ${error}`);
